@@ -17,7 +17,6 @@ def create_app(config_name='default'):
     
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(inventory_bp)
-    app.register_blueprint(inventory_bp, url_prefix='/inventory')
     app.register_blueprint(discovery_bp, url_prefix='/discovery')
     app.register_blueprint(reports_bp, url_prefix='/reports')
     
