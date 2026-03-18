@@ -3,6 +3,7 @@ Dashboard route - main overview
 """
 from flask import Blueprint, render_template, current_app
 from app.models.certificate import CertificateService
+import plotly
 import plotly.graph_objects as go
 import plotly.express as px
 import json
