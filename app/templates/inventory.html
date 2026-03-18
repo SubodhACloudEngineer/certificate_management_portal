@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Certificate Inventory{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-table"></i> Certificate Inventory</h2>
+        <p class="text-muted">Complete list of all certificates across your infrastructure</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" action="/inventory" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Search</label>
+                        <input type="text" class="form-control" name="search" placeholder="Hostname, CN, Site..." value="{{ search_query }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status">
+                            <option value="all" {% if current_status == 'all' %}selected{% endif %}>All</option>
+                            <option value="expired" {% if current_status == 'expired' %}selected{% endif %}>Expired</option>
+                            <option value="critical" {% if current_status == 'critical' %}selected{% endif %}>Critical</option>
+                            <option value="warning" {% if current_status == 'warning' %}selected{% endif %}>Warning</option>
+                            <option value="attention" {% if current_status == 'attention' %}selected{% endif %}>Attention</option>
+                            <option value="healthy" {% if current_status == 'healthy' %}selected{% endif %}>Healthy</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Site</label>
+                        <select class="form-select" name="site">
+                            <option value="all" {% if current_site == 'all' %}selected{% endif %}>All Sites</option>
+                            {% for site in sites %}
+                            <option value="{{ site }}" {% if current_site == site %}selected{% endif %}>{{ site }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Filter
+                            </button>
+                            <a href="/inventory" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-list-ul"></i> 
+                    Showing {{ certificates|length }} certificates
+                </span>
+                <button class="btn btn-sm btn-light">
+                    <i class="bi bi-download"></i> Export to Excel
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Hostname</th>
+                                <th>Common Name</th>
+                                <th>Site</th>
+                                <th>Device Type</th>
+                                <th>Service</th>
+                                <th>Issuer</th>
+                                <th>Expires</th>
+                                <th>Days Left</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cert in certificates %}
+                            <tr>
+                                <td>
+                                    <i class="bi bi-hdd-network"></i>
+                                    {{ cert.hostname }}
+                                </td>
+                                <td>{{ cert.common_name }}</td>
+                                <td><span class="badge bg-secondary">{{ cert.site_code }}</span></td>
+                                <td><span class="badge bg-info">{{ cert.device_type }}</span></td>
+                                <td>{{ cert.service_type }}</td>
+                                <td class="small">{{ cert.issuer.split(',')[0].replace('CN=', '') }}</td>
+                                <td>{{ cert.not_after[:10] }}</td>
+                                <td class="{% if cert.days_until_expiry <= 7 %}text-danger fw-bold{% elif cert.days_until_expiry <= 30 %}text-warning fw-bold{% endif %}">
+                                    {{ cert.days_until_expiry }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ cert.status_color }}">
+                                        {{ cert.status.upper() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    {% if cert.days_until_expiry <= 30 %}
+                                    <button class="btn btn-sm btn-outline-success" title="Renew">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

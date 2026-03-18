@@ -1,0 +1,75 @@
+/* Custom styles for Certificate Portal */
+
+:root {
+    --primary-color: #1e3a8a;
+    --accent-color: #f59e0b;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    font-weight: 600;
+    border-bottom: 2px solid rgba(0,0,0,0.05);
+}
+
+.table {
+    font-size: 0.9rem;
+}
+
+.table thead {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+}
+
+/* Status badges */
+.bg-danger { background-color: #dc3545 !important; }
+.bg-warning { background-color: #ffc107 !important; color: #000 !important; }
+.bg-info { background-color: #17a2b8 !important; }
+.bg-success { background-color: #28a745 !important; }
+
+/* Chart containers */
+#statusChart, #siteChart, #timelineChart {
+    width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-title {
+        font-size: 1.5rem;
+    }
+    
+    .table {
+        font-size: 0.8rem;
+    }
+}
+
+/* Loading spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Footer */
+footer {
+    margin-top: 50px;
+}

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Certificate Lifecycle Management{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-speedometer2"></i> Certificate Dashboard</h2>
+        <p class="text-muted">Real-time overview of certificate health across your infrastructure</p>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mt-4">
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ stats.total }}</h3>
+                <p class="card-text text-muted">Total Certificates</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center border-danger">
+            <div class="card-body">
+                <h3 class="card-title text-danger">{{ stats.expired + stats.critical }}</h3>
+                <p class="card-text text-muted">Critical</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center border-warning">
+            <div class="card-body">
+                <h3 class="card-title text-warning">{{ stats.warning }}</h3>
+                <p class="card-text text-muted">Warning</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center border-info">
+            <div class="card-body">
+                <h3 class="card-title text-info">{{ stats.attention }}</h3>
+                <p class="card-text text-muted">Attention</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center border-success">
+            <div class="card-body">
+                <h3 class="card-title text-success">{{ stats.healthy }}</h3>
+                <p class="card-text text-muted">Healthy</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="card-title">{{ stats.sites|length }}</h3>
+                <p class="card-text text-muted">Sites</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div id="statusChart"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div id="siteChart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Timeline Chart -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div id="timelineChart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity & Alerts -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-clock-history"></i> Recently Discovered
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Hostname</th>
+                                <th>Site</th>
+                                <th>Expires In</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cert in recent_certificates %}
+                            <tr>
+                                <td>{{ cert.hostname }}</td>
+                                <td><span class="badge bg-secondary">{{ cert.site_code }}</span></td>
+                                <td>{{ cert.days_until_expiry }} days</td>
+                                <td><span class="badge bg-{{ cert.status_color }}">{{ cert.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-exclamation-triangle"></i> Expiring Soon
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Hostname</th>
+                                <th>Site</th>
+                                <th>Days Left</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cert in expiring_soon %}
+                            <tr>
+                                <td>{{ cert.hostname }}</td>
+                                <td><span class="badge bg-secondary">{{ cert.site_code }}</span></td>
+                                <td class="text-danger"><strong>{{ cert.days_until_expiry }}</strong></td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">Renew</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Render charts
+    const statusChartData = {{ status_chart|safe }};
+    const siteChartData = {{ site_chart|safe }};
+    const timelineChartData = {{ timeline_chart|safe }};
+    
+    Plotly.newPlot('statusChart', statusChartData.data, statusChartData.layout);
+    Plotly.newPlot('siteChart', siteChartData.data, siteChartData.layout);
+    Plotly.newPlot('timelineChart', timelineChartData.data, timelineChartData.layout);
+</script>
+{% endblock %}
